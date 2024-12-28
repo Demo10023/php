@@ -1,0 +1,36 @@
+h1 {
+    font-family: "Arial", sans-serif;
+    color: darkblue;
+}
+
+table {
+    width: 60%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+.name {
+    color: blue;
+    font-family: "Bodoni MT", serif;
+    font-style: italic;
+    font-size: 16pt;
+}
+
+.class {
+    color: green;
+    font-family: "Arial", Helvetica, sans-serif;
+    font-size: 12pt;
+    font-style: normal;
+}
+
+.percentage {
+    color: red;
+    font-family: "Impact", Charcoal, sans-serif;
+    font-size: 14pt;
+    font-style: oblique;
+}
