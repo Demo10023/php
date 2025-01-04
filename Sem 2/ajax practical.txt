@@ -1,0 +1,368 @@
+A1)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Read Text File using Ajax</title>
+    <script>
+        function readFile() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "readfile.php", true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById("fileContent").innerHTML = xhr.responseText;
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <h1>Ajax File Reader</h1>
+    <button onclick="readFile()">Print</button>
+    <div id="fileContent" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px;"></div>
+</body>
+</html>
+
+<!-- PHP File: readfile.php -->
+<?php
+    $filename = "sample.txt"; // Specify the text file
+    if (file_exists($filename)) {
+        echo nl2br(file_get_contents($filename));
+    } else {
+        echo "File not found!";
+    }
+?>
+==============================================
+A2)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Username Validation</title>
+    <script>
+        function validateUsername() {
+            var username = document.getElementById("username").value;
+            var result = document.getElementById("result");
+            
+            if (username === "") {
+                result.innerHTML = "Enter username";
+                result.style.color = "red";
+                return;
+            }
+            
+            if (username.length < 3) {
+                result.innerHTML = "Username is too short";
+                result.style.color = "orange";
+                return;
+            }
+
+            // Perform AJAX request to validate the username
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "validate_username.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    result.innerHTML = xhr.responseText;
+                    result.style.color = "green";
+                }
+            };
+
+            xhr.send("username=" + encodeURIComponent(username));
+        }
+    </script>
+</head>
+<body>
+    <h2>Username Validation</h2>
+    <input type="text" id="username" onkeyup="validateUsername()" placeholder="Enter username">
+    <p id="result"></p>
+
+    <!-- PHP Backend Simulation (validate_username.php) -->
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $username = $_POST['username'];
+        if (strlen($username) >= 3) {
+            echo "Valid username";
+        } else {
+            echo "Username is too short";
+        }
+    }
+    ?>
+</body>
+</html>
+===================================
+B1)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Details</title>
+    <script>
+        function getEmployeeDetails() {
+            var ename = document.getElementById("ename").value;
+            var result = document.getElementById("result");
+
+            if (ename === "") {
+                result.innerHTML = "Please select an employee";
+                result.style.color = "red";
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "get_employee.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    result.innerHTML = xhr.responseText;
+                    result.style.color = "black";
+                }
+            };
+
+            xhr.send("ename=" + encodeURIComponent(ename));
+        }
+    </script>
+</head>
+<body>
+    <h2>Employee Details</h2>
+    <label for="ename">Select Employee:</label>
+    <select id="ename" onchange="getEmployeeDetails()">
+        <option value="">--Select--</option>
+        <option value="John">John</option>
+        <option value="Alice">Alice</option>
+        <option value="Robert">Robert</option>
+    </select>
+    <p id="result"></p>
+
+    <!-- PHP Backend Simulation (get_employee.php) -->
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $ename = $_POST['ename'];
+        $employees = [
+            'John' => ['eno' => 101, 'designation' => 'Manager', 'salary' => 75000],
+            'Alice' => ['eno' => 102, 'designation' => 'Developer', 'salary' => 60000],
+            'Robert' => ['eno' => 103, 'designation' => 'Analyst', 'salary' => 50000]
+        ];
+
+        if (isset($employees[$ename])) {
+            $emp = $employees[$ename];
+            echo "Employee No: " . $emp['eno'] . "<br>";
+            echo "Designation: " . $emp['designation'] . "<br>";
+            echo "Salary: $" . $emp['salary'];
+        } else {
+            echo "Employee not found.";
+        }
+    }
+    ?>
+</body>
+</html>
+===========================================
+B2)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+    <script>
+        function getMovieDetails() {
+            var aname = document.getElementById("aname").value;
+            var result = document.getElementById("result");
+
+            if (aname === "") {
+                result.innerHTML = "Please select an actor";
+                result.style.color = "red";
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "get_movie.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    result.innerHTML = xhr.responseText;
+                    result.style.color = "black";
+                }
+            };
+
+            xhr.send("aname=" + encodeURIComponent(aname));
+        }
+    </script>
+</head>
+<body>
+    <h2>Movie Details</h2>
+    <label for="aname">Select Actor:</label>
+    <select id="aname" onchange="getMovieDetails()">
+        <option value="">--Select--</option>
+        <option value="Leonardo">Leonardo</option>
+        <option value="Brad">Brad</option>
+        <option value="Scarlett">Scarlett</option>
+    </select>
+    <p id="result"></p>
+
+    <!-- PHP Backend Simulation (get_movie.php) -->
+    <?php
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $aname = $_POST['aname'];
+        $movies = [
+            'Leonardo' => [
+                ['mno' => 201, 'mname' => 'Inception', 'release_yr' => 2010],
+                ['mno' => 202, 'mname' => 'Titanic', 'release_yr' => 1997]
+            ],
+            'Brad' => [
+                ['mno' => 301, 'mname' => 'Fight Club', 'release_yr' => 1999],
+                ['mno' => 302, 'mname' => 'Troy', 'release_yr' => 2004]
+            ],
+            'Scarlett' => [
+                ['mno' => 401, 'mname' => 'Lucy', 'release_yr' => 2014],
+                ['mno' => 402, 'mname' => 'Marriage Story', 'release_yr' => 2019]
+            ]
+        ];
+
+        if (isset($movies[$aname])) {
+            foreach ($movies[$aname] as $movie) {
+                echo "Movie No: " . $movie['mno'] . "<br>";
+                echo "Movie Name: " . $movie['mname'] . "<br>";
+                echo "Release Year: " . $movie['release_yr'] . "<br><br>";
+            }
+        } else {
+            echo "No movies found for the selected actor.";
+        }
+    }
+    ?>
+</body>
+</html>
+==========================================
+
+C1)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Suggestions</title>
+    <script>
+        var suggestions = ["Inception", "Titanic", "Interstellar", "Iron Man", "The Matrix", "Avatar", "Avengers", "Jurassic Park", "The Godfather", "Gladiator"];
+
+        function showSuggestions() {
+            var input = document.getElementById("search").value.toLowerCase();
+            var result = document.getElementById("result");
+            var filtered = suggestions.filter(function (suggestion) {
+                return suggestion.toLowerCase().includes(input);
+            });
+
+            if (input === "") {
+                result.innerHTML = "";
+                return;
+            }
+
+            var output = "<ul>";
+            filtered.forEach(function (item) {
+                output += "<li>" + item + "</li>";
+            });
+            output += "</ul>";
+            result.innerHTML = output;
+        }
+    </script>
+</head>
+<body>
+    <h2>Search for Movies</h2>
+    <input type="text" id="search" onkeyup="showSuggestions()" placeholder="Type a movie name...">
+    <div id="result"></div>
+</body>
+</html>
+=========================================
+
+C2)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details</title>
+    <script>
+        function getBookDetails() {
+            var bookName = document.getElementById("book").value;
+            var result = document.getElementById("result");
+
+            if (bookName === "") {
+                result.innerHTML = "Please select a book";
+                return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "books.xml", true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var xmlDoc = xhr.responseXML;
+                    var books = xmlDoc.getElementsByTagName("book");
+                    var output = "";
+
+                    for (var i = 0; i < books.length; i++) {
+                        var title = books[i].getElementsByTagName("title")[0].childNodes[0].nodeValue;
+                        if (title === bookName) {
+                            var author = books[i].getElementsByTagName("author")[0].childNodes[0].nodeValue;
+                            var year = books[i].getElementsByTagName("year")[0].childNodes[0].nodeValue;
+                            var price = books[i].getElementsByTagName("price")[0].childNodes[0].nodeValue;
+                            output += "<h3>" + title + "</h3>";
+                            output += "Author: " + author + "<br>";
+                            output += "Year: " + year + "<br>";
+                            output += "Price: $" + price + "<br>";
+                        }
+                    }
+
+                    if (output === "") {
+                        result.innerHTML = "Book not found.";
+                    } else {
+                        result.innerHTML = output;
+                    }
+                }
+            };
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <h2>Select a Book</h2>
+    <select id="book" onchange="getBookDetails()">
+        <option value="">--Select--</option>
+        <option value="Harry Potter">Harry Potter</option>
+        <option value="The Hobbit">The Hobbit</option>
+        <option value="1984">1984</option>
+    </select>
+    <div id="result"></div>
+
+    <!-- XML File (books.xml) Example -->
+    <!--
+    <books>
+        <book>
+            <title>Harry Potter</title>
+            <author>J.K. Rowling</author>
+            <year>1997</year>
+            <price>20.00</price>
+        </book>
+        <book>
+            <title>The Hobbit</title>
+            <author>J.R.R. Tolkien</author>
+            <year>1937</year>
+            <price>15.00</price>
+        </book>
+        <book>
+            <title>1984</title>
+            <author>George Orwell</author>
+            <year>1949</year>
+            <price>18.00</price>
+        </book>
+    </books>
+    -->
+</body>
+</html>
