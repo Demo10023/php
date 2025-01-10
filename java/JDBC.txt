@@ -1,0 +1,645 @@
+                                JDBC
+                     ============================
+
+Set A
+=======
+
+1).
+
+package com.aniket;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+
+public class StudentDisplayTable
+{
+	public static void main(String...args)
+	{
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try 
+		{
+			Class.forName("org.postgresql.Driver");
+			con = DriverManager.getConnection("jdbc:postgresql://localhost/ajdb18","root","root@123");
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			
+			while(true)
+			{
+				System.out.print("Enter a Student Roll No    : ");
+				int rno = Integer.parseInt(br.readLine());
+				
+				System.out.print("Enter a Student Name       : ");
+				String name = br.readLine();
+				
+				System.out.print("Enter a Student Percentage : ");
+				double per = Double.parseDouble(br.readLine());
+				
+				ps = con.prepareStatement("insert into student values(?,?,?)");
+				ps.setInt(1, rno);
+				ps.setString(2, name);
+				ps.setDouble(3, per);
+				ps.executeUpdate();
+				
+				System.out.print("Do You Want to Continue[yes/no] : ");
+				String option = br.readLine();
+				
+				if(option.equalsIgnoreCase("yes"))
+				{
+					continue;
+				}
+				else 
+				{
+					break;
+				}
+			}
+			br.close();
+			
+			
+			ps = con.prepareStatement("select * from student");
+			
+			rs = ps.executeQuery();
+			
+			//create frame
+			JFrame frame = new JFrame("Student Table");
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			
+			//create table model and JTable
+			DefaultTableModel tmodel = new DefaultTableModel();
+			JTable table = new JTable(tmodel);
+			
+			//add columns
+			tmodel.addColumn("ROLL");
+			tmodel.addColumn("NAME");
+			tmodel.addColumn("PER");
+			
+			while(rs.next())
+			{
+				tmodel.addRow(new Object[] {rs.getInt(1),rs.getString(2),rs.getDouble(3)});
+			}
+			
+			//add table scroll panel
+			JScrollPane scrollPane = new JScrollPane(table);
+			frame.add(scrollPane);
+			
+			//set frame size and visibility
+			frame.setSize(400,200);
+			frame.setVisible(true);
+		}
+		catch(Exception e) 
+		{
+			e.printStackTrace();
+		}
+		finally 
+		{
+			try 
+			{
+				con.close();
+				ps.close();
+				rs.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}
+}
+
+==================================================
+2).
+
+package com.aniket;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
+public class DisplayDatabaseMetaData 
+{
+	public static void main(String[] args) 
+	{
+		Connection con = null;
+		ResultSet rs = null;
+		DatabaseMetaData dbmd = null;
+		
+		String dbname = "jdbc:postgresql://localhost/ajdb18";
+		String user   = "root";
+		String pwd    = "root@123";
+		
+		try
+		{
+			Class.forName("org.postgresql.Driver");
+			con = DriverManager.getConnection(dbname,user,pwd);
+			
+			dbmd = con.getMetaData();
+			
+			System.out.println("Database Name : " + dbmd.getDatabaseProductName());
+			System.out.println("Version       : " + dbmd.getDatabaseProductVersion());
+			System.out.println("Driver Name   : " + dbmd.getDriverName());
+			System.out.println("User Name     : " + dbmd.getUserName());
+			
+			rs = dbmd.getTables(null,null,null,new String[] {"TABLE"});
+			
+			System.out.println("\nList Of Tables: ");
+			
+			while(rs.next())
+			{
+				System.out.println(rs.getString("TABLE_NAME"));
+			}
+			
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				rs.close();
+			    con.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+	}
+}
+==================================================
+
+3).
+
+package com.aniket;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+
+public class DisplayResultSetMetaData {
+
+	public static void main(String[] args) {
+		
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		ResultSetMetaData rsmd = null;
+		
+		try 
+		{
+			Class.forName("org.postgresql.Driver");
+			con = DriverManager.getConnection("jdbc:postgresql://localhost/ajdb18","root","root@123");
+			
+			stmt = con.createStatement();
+			rs = stmt.executeQuery("select * from student");
+			
+			rsmd = rs.getMetaData();
+			
+			int n = rsmd.getColumnCount();
+			System.out.println("No.of Columns : " + n);
+			
+			for(int i=1;i<=n;i++)
+			{
+				System.out.println("Column Name : " + rsmd.getColumnName(i));
+				System.out.println("Column Type : " + rsmd.getColumnTypeName(i));
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally 
+		{
+			try 
+			{
+				rs.close();
+				con.close();
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+}
+==================================================
+
+SET B
+======
+1).
+
+package com.aniket;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+public class Demo {
+
+	public static void main(String[] args) {
+		
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		String dbname = "jdbc:postgresql://localhost/ajdb18";
+		String user   = "root";
+		String pwd    = "root@123";
+		
+		try 
+		{
+			Class.forName("org.postgresql.Driver");
+			con = DriverManager.getConnection(dbname,user,pwd);
+			
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			
+			while(true)
+			{
+				System.out.print("\n****MENU****\n1.Insert\n2.Modify\n3.Delete\n4.Search\n5.View All\n6.Exit\n\n");
+				System.out.print("Enter a Choice : ");
+				int choice = Integer.parseInt(br.readLine());
+				
+				switch(choice)
+				{
+					case 1:
+						  while(true)
+						  {
+							  System.out.print("Enter a Student Roll No    : ");
+							  int rno = Integer.parseInt(br.readLine());
+								
+							  System.out.print("Enter a Student Name       : ");
+							  String name = br.readLine();
+								
+							  System.out.print("Enter a Student Percentage : ");
+							  double per = Double.parseDouble(br.readLine());
+								
+							  ps = con.prepareStatement("insert into student values(?,?,?)");
+							  ps.setInt(1, rno);
+							  ps.setString(2, name);
+							  ps.setDouble(3, per);
+							  ps.executeUpdate();
+								
+							  System.out.print("Do You Want to Continue[yes/no] : ");
+							  String option = br.readLine();
+								
+							  if(option.equalsIgnoreCase("yes"))
+							  {
+							      continue;
+							  }
+							  else 
+							  {
+								  break;
+							  }
+						  }
+						  break;
+						  
+					case 2:
+						  System.out.print("Enter Roll Number for Update Record :");
+						  int rn = Integer.parseInt(br.readLine());
+						  
+						  System.out.println("1.Modify Name\n2.Modify Percentage\n3.Modify Both");
+						  int r = Integer.parseInt(br.readLine());
+						  
+						  if(r==1)
+						  {
+							  System.out.print("Enter Name to Update : ");
+							  String na = br.readLine();
+							  
+							  ps = con.prepareStatement("UPDATE student SET name=? WHERE rno=?");
+							  ps.setString(1, na);
+							  ps.setInt(2, rn);
+							  
+							  int status = ps.executeUpdate();
+							  
+							  if(status == 0)
+							  {
+								  System.out.println("No Record Found for Roll Number : " + rn);
+							  }
+							  else 
+							  {
+								  System.out.println("Record Updated Successfully for Roll Number : " + rn);
+							  }  
+						  }
+						  else if(r == 2)
+						  {
+							  System.out.print("Enter Percentage to Update : ");
+							  double pe = Double.parseDouble(br.readLine());
+							  
+							  ps = con.prepareStatement("UPDATE student SET per=? WHERE rno=?");
+							  ps.setDouble(1, pe);
+							  ps.setInt(2, rn);
+							  
+                              int sta = ps.executeUpdate();
+							  
+							  if(sta == 0)
+							  {
+								  System.out.println("No Record Found for Roll Number : " + rn);
+							  }
+							  else 
+							  {
+								  System.out.println("Record Updated Successfully for Roll Number : " + rn);
+							  }  
+						  }
+						  else if(r == 3)
+						  {
+							  System.out.print("Enter Name to Update : ");
+							  String nn = br.readLine();
+							  
+							  System.out.print("Enter Percentage to Update : ");
+							  double p = Double.parseDouble(br.readLine());
+							  
+							  ps = con.prepareStatement("UPDATE student SET name=?,per=? WHERE rno=?");
+							  ps.setString(1, nn);
+							  ps.setDouble(2, p);
+							  ps.setInt(3, rn);
+							  
+							  int status = ps.executeUpdate();
+							  
+							  if(status == 0)
+							  {
+								  System.out.println("No Record Found for Roll Number : " + rn);
+							  }
+							  else 
+							  {
+								  System.out.println("Record Updated Successfully for Roll Number : " + rn);
+							  }  
+						  }
+						  else 
+						  {
+							  System.out.println("Invalid Choice!!!");
+						  }
+						  break;
+						  
+					case 3:
+						 System.out.print("Enter a Roll Number for Delete Record : ");
+						 int rno = Integer.parseInt(br.readLine());
+						 
+						  ps = con.prepareStatement("DELETE from student WHERE rno=?");
+						  ps.setInt(1, rno);
+						  
+						  int i = ps.executeUpdate();
+						  
+						  if(i == 0)
+						  {
+							  System.out.println("No Record Found for Roll Number : " + rno);
+						  }
+						  else 
+						  {
+							  System.out.println("Record Deleted Successfully for Roll Number : " + rno);
+						  }
+						  break;
+						  
+					case 4:
+						System.out.print("Enter a Roll Number for Search Student : ");
+						int de = Integer.parseInt(br.readLine());
+						
+						  ps = con.prepareStatement("select * from student WHERE rno=?");
+						  ps.setInt(1, de);
+						  
+						  rs = ps.executeQuery();
+						  
+						  if(rs.next())
+						  {
+							  System.out.println("Record is Found for Roll Number : " + de);
+						  }
+						  else 
+						  {
+							  System.out.println("Record is Not Found for Roll Number : " + de);
+						  }
+						  break;
+						  
+					case 5:
+						ps = con.prepareStatement("select * from student");
+						rs = ps.executeQuery();
+						
+						while(rs.next())
+						{
+							System.out.println(rs.getString("rno") + "|" + rs.getString("name") + "|" + rs.getString("per"));
+						}
+						break;
+						
+					case 6:
+						System.out.println("Application is Terminated!!");
+						System.exit(0);
+						
+					default:
+						System.out.println("Invalid choice !!");
+					
+				}
+			}
+	
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		finally 
+		{
+			try 
+			{
+				con.close();
+				rs.close();
+				ps.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+}
+
+==================================================
+B2).
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class PhoneBookApp {
+
+    private JFrame frame;
+    private JTextField nameField, phoneField;
+    private JButton deleteButton, updateButton, nextButton, previousButton;
+    private ArrayList<Contact> contacts;
+    private int currentIndex;
+
+    public PhoneBookApp() {
+        contacts = new ArrayList<>();
+        currentIndex = -1;
+        initializeUI();
+    }
+
+    private void initializeUI() {
+        frame = new JFrame("Phone Book Application");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+        frame.setLayout(new GridLayout(5, 2));
+
+        // Components
+        frame.add(new JLabel("Name:"));
+        nameField = new JTextField();
+        frame.add(nameField);
+
+        frame.add(new JLabel("Phone Number:"));
+        phoneField = new JTextField();
+        frame.add(phoneField);
+
+        deleteButton = new JButton("Delete");
+        frame.add(deleteButton);
+
+        updateButton = new JButton("Update");
+        frame.add(updateButton);
+
+        previousButton = new JButton("Previous");
+        frame.add(previousButton);
+
+        nextButton = new JButton("Next");
+        frame.add(nextButton);
+
+        // Add Event Listeners
+        deleteButton.addActionListener(e -> deleteContact());
+        updateButton.addActionListener(e -> updateContact());
+        nextButton.addActionListener(e -> nextContact());
+        previousButton.addActionListener(e -> previousContact());
+
+        frame.setVisible(true);
+    }
+
+    private void deleteContact() {
+        if (currentIndex >= 0 && currentIndex < contacts.size()) {
+            contacts.remove(currentIndex);
+            if (contacts.isEmpty()) {
+                currentIndex = -1;
+                clearFields();
+            } else {
+                currentIndex = Math.min(currentIndex, contacts.size() - 1);
+                displayContact();
+            }
+        } else {
+            JOptionPane.showMessageDialog(frame, "No contact to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateContact() {
+        try {
+            String name = nameField.getText().trim();
+            String phone = phoneField.getText().trim();
+
+            if (name.isEmpty()) {
+                throw new IllegalArgumentException("Name cannot be empty.");
+            }
+
+            long phoneNumber;
+            try {
+                phoneNumber = Long.parseLong(phone);
+                if (phoneNumber < 0) {
+                    throw new NumberFormatException("Phone number cannot be negative.");
+                }
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException("Invalid phone number.");
+            }
+
+            if (currentIndex >= 0 && currentIndex < contacts.size()) {
+                contacts.get(currentIndex).setName(name);
+                contacts.get(currentIndex).setPhoneNumber(phoneNumber);
+                JOptionPane.showMessageDialog(frame, "Contact updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                contacts.add(new Contact(name, phoneNumber));
+                currentIndex = contacts.size() - 1;
+                JOptionPane.showMessageDialog(frame, "Contact added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(frame, ex.getMessage(), "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void nextContact() {
+        if (!contacts.isEmpty() && currentIndex < contacts.size() - 1) {
+            currentIndex++;
+            displayContact();
+        } else {
+            JOptionPane.showMessageDialog(frame, "No next contact available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void previousContact() {
+        if (!contacts.isEmpty() && currentIndex > 0) {
+            currentIndex--;
+            displayContact();
+        } else {
+            JOptionPane.showMessageDialog(frame, "No previous contact available.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void displayContact() {
+        if (currentIndex >= 0 && currentIndex < contacts.size()) {
+            Contact contact = contacts.get(currentIndex);
+            nameField.setText(contact.getName());
+            phoneField.setText(String.valueOf(contact.getPhoneNumber()));
+        }
+    }
+
+    private void clearFields() {
+        nameField.setText("");
+        phoneField.setText("");
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(PhoneBookApp::new);
+    }
+
+    // Contact Class
+    static class Contact {
+        private String name;
+        private long phoneNumber;
+
+        public Contact(String name, long phoneNumber) {
+            this.name = name;
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public long getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(long phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+    }
+}

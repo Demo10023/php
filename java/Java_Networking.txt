@@ -1,0 +1,539 @@
+A1). client
+
+import java.io.*;
+import java.net.*;
+
+public class SetA1Client
+{
+	public static void main(String...args)
+	{
+		String hostname = "localhost";
+		int port = 12345;
+
+		try(Socket socket = new Socket(hostname,port))
+		{
+			//read the date & time from the server.
+			InputStream input = socket.getInputStream();
+			BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+			String serverDateTime = br.readLine();
+
+			System.out.println("Server Date and Time : " + serverDateTime);
+		}
+		catch(IOException e)
+		{
+			System.out.println("Client Error : " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+}
+-------------
+server:
+import java.io.*;
+import java.net.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+public class SetA1Server 
+{
+    public static void main(String...args)
+    {
+        int port = 12345;
+
+        try(ServerSocket serverSocket = new ServerSocket(port))
+        {
+            System.out.println("Server is Listening on Port " + port);
+
+            while(true)
+            {
+                Socket socket = serverSocket.accept();
+
+                LocalDateTime ldt = LocalDateTime.now();
+                String formattedDateTime = ldt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd  HH:mm:ss"));
+
+                //send the date and time to the client.
+                OutputStream output = socket.getOutputStream();
+                PrintWriter out = new PrintWriter(output,true);
+                out.println(formattedDateTime);
+
+                System.out.println("Date and Time sent to the Client : " + formattedDateTime);
+                socket.close();
+            }
+        }
+        catch(IOException ex) 
+        {
+            System.out.println("Server error : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
+==============================================
+A2). client
+
+import java.io.*;
+import java.net.*;
+
+class SetA2Client
+{
+	public static void main(String []agrs)
+	{
+		 String hostname = "localhost"; // Server hostname or IP
+         int port = 12345; // Server port number
+
+         try(Socket socket = new Socket(hostname,port))
+         {
+         	OutputStream output = socket.getOutputStream();
+         	PrintWriter out = new PrintWriter(output,true);
+
+         	InputStream input = socket.getInputStream();
+         	BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+         	//send the file name to the server.
+         	BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+         	System.out.print("Enter the Name of the File : ");
+         	String fname = consoleReader.readLine();
+         	out.println(fname);
+
+         	//Read the Server's Response.
+         	String serverResponse;
+         	System.out.println("Server Response : ");
+
+         	while((serverResponse = br.readLine()) != null)
+         	{
+         		System.out.println(serverResponse);
+         	}
+         }
+         catch (IOException ex) 
+         {
+              System.out.println("Client error : " + ex.getMessage());
+              ex.printStackTrace();
+         }
+     }
+}
+------------------
+server
+
+import java.io.*;
+import java.net.*;
+
+class SetA2Server
+{
+	public static void main(String...args)
+	{
+		int port = 12345;
+		
+		try(ServerSocket serverSocket = new ServerSocket(port))
+		{
+			 System.out.println("Server is listening on port " + port);
+
+			 while(true)
+			 {
+			 	Socket socket = serverSocket.accept();
+			 	System.out.println("Client Connected!!");
+
+			 	InputStream input = socket.getInputStream();
+			 	BufferedReader br = new BufferedReader(new InputStreamReader(input));
+
+			 	OutputStream output = socket.getOutputStream();
+			 	PrintWriter out = new PrintWriter(output,true);
+
+			 	//read the file name from the client.
+			 	String fname = br.readLine();
+
+			 	File file = new File(fname);
+
+			 	if(file.exists() && file.isFile())
+			 	{
+			 		//sents file content to the client.
+			 		BufferedReader fbr = new BufferedReader(new FileReader(file));
+			 		String line;
+
+			 		while((line = fbr.readLine()) != null)
+			 		{
+			 			out.println(line);
+			 		}
+
+			 		fbr.close();
+			 		System.out.println("File Contents sent to the Client");
+			 	} 
+			 	else 
+			 	{
+			 		out.println("ERROR : " + fname + " File Not Found.");
+			 	}
+
+			 	socket.close();
+			 }
+		}
+		catch(IOException ex)
+		{
+			 System.out.println("Server error : " + ex.getMessage());
+             ex.printStackTrace();
+		}	
+	}
+}
+==============================================================
+B1).client
+
+import java.io.*;
+import java.net.*;
+
+public class SetB1Client 
+{
+    public static void main(String[] args) 
+    {
+        String hostname = "localhost"; // Server hostname or IP
+        int port = 12345; // Server port number
+
+        try (Socket socket = new Socket(hostname, port)) 
+        {
+            // Set up input and output streams
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+
+            // Input file names from the user
+            System.out.print("Enter a comma-separated list of file names : ");
+            String fileNames = consoleReader.readLine();
+
+            // Send the file names to the server
+            out.println(fileNames);
+
+            // Read and display the server's response
+            String serverResponse;
+            System.out.println("Server response :");
+
+            while((serverResponse = reader.readLine()) != null) 
+            {
+                System.out.println(serverResponse);
+            }
+        } 
+        catch (IOException ex) 
+        {
+            System.out.println("Client error : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
+----------------------------
+server:
+
+import java.io.*;
+import java.net.*;
+
+public class SetB1Server 
+{
+    public static void main(String[] args) 
+    {
+        int port = 12345;
+
+        try (ServerSocket serverSocket = new ServerSocket(port)) 
+        {
+            System.out.println("Server is listening on port " + port);
+
+            while (true) 
+            {
+                Socket socket = serverSocket.accept();
+                System.out.println("Client connected");
+
+                // Set up input and output streams
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+                // Read the file names from the client
+                String fileNamesLine = reader.readLine();
+                String[] fileNames = fileNamesLine.split(",");
+
+                // Check file existence and send results back to the client
+                int count = 0;
+
+                StringBuilder response = new StringBuilder();
+
+                for(String fileName : fileNames) 
+                {
+                    File file = new File(fileName.trim());
+
+                    if(file.exists() && file.isFile()) 
+                    {
+                        count++;
+                        response.append(fileName).append(" exists.\n");
+                    } 
+                    else 
+                    {
+                        response.append(fileName).append(" does not exist.\n");
+                    }
+                }
+
+                response.append("Total files found : ").append(count);
+                out.println(response.toString());
+
+                socket.close();
+                System.out.println("Client disconnected");
+            }
+        } 
+        catch(IOException ex) 
+        {
+            System.out.println("Server error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
+===================================================================
+B2).client
+
+import java.io.*;
+import java.net.*;
+
+public class SetB2Client
+{
+	public static void main(String...args)
+	{
+		String hostname = "localhost";
+		int port = 12345;
+
+		try(Socket socket = new Socket(hostname,port))
+		{
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+			System.out.println("Type Message to send to the Server.Type 'END' to Terminate.");
+
+			while(true)
+			{
+				System.out.print("Enter Your Message : ");
+				String message = br.readLine();
+				out.println(message);
+
+				if(message.equalsIgnoreCase("END"))
+				{
+					System.out.println("Connection Closed");
+					break;
+				}
+
+				String serverResponse = reader.readLine();
+				System.out.println(serverResponse); //display the echo message
+			}
+		}
+		catch(IOException ex)
+		{
+			System.out.println("Client error : " + ex.getMessage());
+            ex.printStackTrace();
+		}
+	}
+}
+----------------
+server:
+
+import java.io.*;
+import java.net.*;
+
+public class SetB2Server
+{
+	public static void main(String...args)
+	{
+		int port = 12345;
+
+		try(ServerSocket serverSocket = new ServerSocket(port))
+		{
+			System.out.println("Server is listening on port " + port);
+
+			while(true)
+			{
+				Socket socket = serverSocket.accept();
+				System.out.println("Client Connected");
+
+				InputStream input = socket.getInputStream();
+				BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+				OutputStream output = socket.getOutputStream();
+				PrintWriter out = new PrintWriter(output,true);
+
+				String message;
+				while((message = reader.readLine()) != null)
+				{
+					if(message.equalsIgnoreCase("END"))
+					{
+						System.out.println("Client Disconnected");
+						break;
+					}
+
+					System.out.println("Received : " + message);
+					out.println("Echo : " + message);
+				} 
+
+				socket.close();
+			}
+		}
+		catch(IOException ex)
+		{
+			System.out.println("Server error : " + ex.getMessage());
+			ex.printStackTrace();
+		}
+	}
+}
+=========================================================
+C1).client
+
+import java.io.*;
+import java.net.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class SetC1Client 
+{
+    private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
+
+    private JFrame frame;
+    private JTextArea chatArea;
+    private JTextField inputField;
+
+    public SetC1Client(String host, int port) 
+    {
+        try {
+            socket = new Socket(host, port);
+            setupGUI();
+            System.out.println("Connected to the server!");
+
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+
+            new Thread(this::readMessages).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupGUI() {
+        frame = new JFrame("Client Chat");
+        chatArea = new JTextArea(20, 50);
+        chatArea.setEditable(false);
+        inputField = new JTextField(40);
+
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(e -> sendMessage());
+
+        JPanel panel = new JPanel();
+        panel.add(inputField);
+        panel.add(sendButton);
+
+        frame.add(new JScrollPane(chatArea), BorderLayout.CENTER);
+        frame.add(panel, BorderLayout.SOUTH);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
+    private void readMessages() {
+        try {
+            String message;
+            while ((message = in.readLine()) != null) {
+                chatArea.append("Server: " + message + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessage() {
+        String message = inputField.getText();
+        if (!message.isEmpty()) {
+            out.println(message);
+            chatArea.append("Client: " + message + "\n");
+            inputField.setText("");
+        }
+    }
+
+    public static void main(String[] args) {
+        new SetC1Client("localhost", 12345);
+    }
+}
+-----------------------
+server:
+
+import java.io.*;
+import java.net.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class SetC1Server{
+    private ServerSocket serverSocket;
+    private Socket clientSocket;
+    private BufferedReader in;
+    private PrintWriter out;
+
+    private JFrame frame;
+    private JTextArea chatArea;
+    private JTextField inputField;
+
+    public SetC1Server(int port) {
+        try {
+            serverSocket = new ServerSocket(port);
+            setupGUI();
+            System.out.println("Server started. Waiting for a client...");
+            clientSocket = serverSocket.accept();
+            System.out.println("Client connected!");
+
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+            new Thread(this::readMessages).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupGUI() {
+        frame = new JFrame("Server Chat");
+        chatArea = new JTextArea(20, 50);
+        chatArea.setEditable(false);
+        inputField = new JTextField(40);
+
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(e -> sendMessage());
+
+        JPanel panel = new JPanel();
+        panel.add(inputField);
+        panel.add(sendButton);
+
+        frame.add(new JScrollPane(chatArea), BorderLayout.CENTER);
+        frame.add(panel, BorderLayout.SOUTH);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
+    private void readMessages() {
+        try {
+            String message;
+            while ((message = in.readLine()) != null) {
+                chatArea.append("Client: " + message + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessage() {
+        String message = inputField.getText();
+        if (!message.isEmpty()) {
+            out.println(message);
+            chatArea.append("Server: " + message + "\n");
+            inputField.setText("");
+        }
+    }
+
+    public static void main(String[] args) {
+        new SetC1Server(12345);
+    }
+}
+========================================================================
+
+
+
+
